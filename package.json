@@ -5,6 +5,10 @@
 	"version": "1.0.0",
 	"publisher": "ObsoleteDev",
 	"icon": "icon.png",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/obsoletedevgit/svg-edit"
+	},
 	"engines": {
 		"vscode": "^1.90.0"
 	},
