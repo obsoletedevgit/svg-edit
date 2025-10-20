@@ -1,0 +1,31 @@
+{
+	"name": "svg-edit",
+	"displayName": "SVG Edit",
+	"description": "Edit and preview SVGs side by side in VS Code.",
+	"version": "1.0.0",
+	"publisher": "ObsoleteDev",
+	"icon": "icon.png",
+	"engines": {
+		"vscode": "^1.90.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onLanguage:svg"
+	],
+	"main": "./dist/extension.js",
+	"contributes": {
+		"customEditors": [
+			{
+				"viewType": "svgEdit.editor",
+				"displayName": "SVG Edit",
+				"selector": [
+					{
+						"filenamePattern": "*.svg"
+					}
+				]
+			}
+		]
+	}
+}
