@@ -2,7 +2,7 @@
 	"name": "svg-edit",
 	"displayName": "SVG Edit",
 	"description": "Edit and preview SVGs side by side in VS Code.",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"publisher": "ObsoleteDev",
 	"icon": "icon.png",
 	"repository": {
