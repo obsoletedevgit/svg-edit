@@ -33,11 +33,18 @@ Edit and preview SVG files side by side directly in VS Code. This extension prov
 
 This extension does not have additional configurable settings.
 
-## Known Issues
-
-- Extremely large SVG files may slow down live updates.  
-- Complex animations inside SVGs may not render correctly in the live preview.
-
 ## License
 
 This extension is licensed under the GNU 2.0 License. See the [LICENSE](LICENSE) file for details.
+
+## Screenshots
+
+#### Split editing mode
+<img width="1322" height="685" alt="image" src="https://github.com/user-attachments/assets/3c989ab4-d14d-4a63-a98c-9bd1e432bca6" />
+
+#### SVG view
+<img width="1322" height="685" alt="image" src="https://github.com/user-attachments/assets/834d8510-7984-4238-aa85-8b9b50d52fea" />
+
+#### Code view
+<img width="1322" height="685" alt="image" src="https://github.com/user-attachments/assets/f8947db8-1d5b-4612-8835-39c4dd0cf90e" />
+
