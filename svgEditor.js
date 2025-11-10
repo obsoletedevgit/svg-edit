@@ -87,7 +87,7 @@ class SvgEditorProvider {
       <link rel="stylesheet" href="${styleUri}">
       <link rel="stylesheet" href="${cmCss}">
       <style>
-        html, body { margin:0; height:100%; }
+        html, body { margin:0; height:100%; color:var(--vscode-editor-foreground); background-color:var(--vscode-editor-background); }
         body { display:flex; overflow:hidden; }
         #editor, #preview-container { height:100%; flex:1 1 50%; min-width:50px; }
         #divider { width:5px; cursor:col-resize; background:var(--vscode-editor-foreground);}
@@ -102,15 +102,16 @@ class SvgEditorProvider {
           margin: 0 2px;
         }
         #preview-toolbar button:hover { background-color: var(--vscode-button-hoverBackground); }
-        #preview { display:flex; align-items:center; justify-content:center; background-color: var(--vscode-editor-background); }
+        #preview { display:flex; align-items:center; justify-content:center; background-color: var(--vscode-editor-background); color: var(--vscode-editor-foreground);}
         #preview-inner { transform-origin:0 0; }
+        .CodeMirror { height:100%; color: var(--vscode-editor-foreground); background-color: var(--vscode-editor-background);}
+        .CodeMirror-cursor { border-left: 1px solid var(--vscode-editorCursor-foreground); }
+        .CodeMirror-gutters { background-color: var(--vscode-editorGutter-background); border-right: 1px solid var(--vscode-editorGutter-border);}
       </style>
     </head>
     <body>
       <div id="editor"></div>
       <div id="divider"></div>
-
-      <!-- Toolbar -->
       <div id="preview-toolbar" style="position:absolute; top:5px; right:5px; z-index:10;">
         <button id="zoom-in">+</button>
         <button id="zoom-out">−</button>
@@ -118,26 +119,22 @@ class SvgEditorProvider {
         <button id="toggle-editor">Toggle Code</button>
         <button id="toggle-preview">Toggle SVG</button>
       </div>
-
       <div id="preview-container" style="position:relative; overflow:hidden;">
         <div id="preview-inner">
           <div id="preview"></div>
         </div>
       </div>
-
       <script src="${cmJs}"></script>
       <script src="${xmlMode}"></script>
       <script>
         const vscode = acquireVsCodeApi();
         const savedState = vscode.getState() || {};
-
         const editorDiv = document.getElementById('editor');
         const previewContainer = document.getElementById('preview-container');
         const previewInner = document.getElementById('preview-inner');
         const previewSvg = document.getElementById('preview');
         const divider = document.getElementById('divider');
 
-        // Initialize CodeMirror editor
         window.createEditor = function(container, initialValue, onChange){
           const editor = CodeMirror(container, {
             value: initialValue,
@@ -157,19 +154,17 @@ class SvgEditorProvider {
           return editor;
         }
 
-        // Restore from saved state or start blank
         const initialText = savedState.text || '';
         const editor = window.createEditor(editorDiv, initialText, text => {
           previewSvg.innerHTML = text;
           vscode.postMessage({ type: 'edit', text });
         });
 
-        // State variables
         let scale = savedState.scale || 1;
         let offsetX = savedState.offsetX || 0;
         let offsetY = savedState.offsetY || 0;
-        let showEditor = savedState.showEditor !== false; // default true
-        let showPreview = savedState.showPreview !== false; // default true
+        let showEditor = savedState.showEditor !== false;
+        let showPreview = savedState.showPreview !== false;
 
         function saveState() {
           vscode.setState({
@@ -182,11 +177,9 @@ class SvgEditorProvider {
           });
         }
 
-        // Restore visibility
         editorDiv.style.display = showEditor ? 'block' : 'none';
         previewSvg.style.display = showPreview ? 'block' : 'none';
 
-        // Receive updates from VS Code
         window.addEventListener('message', event => {
           if (event.data.type === 'update') {
             const newText = event.data.text;
@@ -199,18 +192,11 @@ class SvgEditorProvider {
           }
         });
 
-        // Resizable divider
         let isDragging = false;
         divider.addEventListener('mousedown', () => { isDragging = true; document.body.style.cursor = 'col-resize'; });
-        window.addEventListener('mousemove', e => {
-          if (!isDragging) return;
-          editorDiv.style.flex = '0 0 ' + e.clientX + 'px';
-          previewContainer.style.flex = '1';
-          editor.refresh();
-        });
+        window.addEventListener('mousemove', e => { if (!isDragging) return; editorDiv.style.flex = '0 0 ' + e.clientX + 'px'; previewContainer.style.flex = '1'; editor.refresh(); });
         window.addEventListener('mouseup', () => { isDragging = false; document.body.style.cursor = 'default'; });
 
-        // Zoom & Pan
         let isPanning = false, startX, startY;
 
         function updateTransform() {
@@ -218,15 +204,12 @@ class SvgEditorProvider {
           const containerHeight = previewContainer.clientHeight;
           const contentWidth = previewInner.scrollWidth * scale;
           const contentHeight = previewInner.scrollHeight * scale;
-
           const minX = Math.min(0, containerWidth - contentWidth);
           const maxX = 0;
           const minY = Math.min(0, containerHeight - contentHeight);
           const maxY = 0;
-
           offsetX = Math.max(minX, Math.min(maxX, offsetX));
           offsetY = Math.max(minY, Math.min(maxY, offsetY));
-
           previewInner.style.transform = \`translate(\${offsetX}px, \${offsetY}px) scale(\${scale})\`;
           saveState();
         }
@@ -239,21 +222,9 @@ class SvgEditorProvider {
         window.addEventListener('mousemove', e => { if (!isPanning) return; offsetX = e.clientX - startX; offsetY = e.clientY - startY; updateTransform(); });
         window.addEventListener('mouseup', () => { isPanning = false; previewInner.style.cursor = 'default'; });
 
-        // Toggle editor / preview
-        document.getElementById('toggle-editor').addEventListener('click', () => {
-          showEditor = !showEditor;
-          editorDiv.style.display = showEditor ? 'block' : 'none';
-          if (showEditor) editor.refresh();
-          saveState();
-        });
-        document.getElementById('toggle-preview').addEventListener('click', () => {
-          showPreview = !showPreview;
-          previewSvg.style.display = showPreview ? 'block' : 'none';
-          if (showPreview) updateTransform();
-          saveState();
-        });
+        document.getElementById('toggle-editor').addEventListener('click', () => { showEditor = !showEditor; editorDiv.style.display = showEditor ? 'block' : 'none'; if (showEditor) editor.refresh(); saveState(); });
+        document.getElementById('toggle-preview').addEventListener('click', () => { showPreview = !showPreview; previewSvg.style.display = showPreview ? 'block' : 'none'; if (showPreview) updateTransform(); saveState(); });
 
-        // Initial transform and preview
         previewSvg.innerHTML = initialText;
         updateTransform();
       </script>
